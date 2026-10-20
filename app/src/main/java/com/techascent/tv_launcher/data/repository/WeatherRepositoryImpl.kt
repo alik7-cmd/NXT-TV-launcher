@@ -9,6 +9,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Refreshes every [REFRESH_INTERVAL_MS] while collected. The latest result is kept in memory, so
@@ -24,7 +25,7 @@ class WeatherRepositoryImpl(
     override fun observeWeather(): Flow<Weather> = flow {
         latest?.let { (fetchedAt, weather) ->
             emit(weather.toDomain())
-            delay((fetchedAt + REFRESH_INTERVAL_MS - clock()).coerceAtLeast(0L))
+            delay((fetchedAt + REFRESH_INTERVAL_MS - clock()).coerceAtLeast(0L).milliseconds)
         }
         var retryDelay = FIRST_RETRY_DELAY_MS
         while (true) {
@@ -40,10 +41,10 @@ class WeatherRepositoryImpl(
                 latest = clock() to weather
                 emit(weather.toDomain())
                 retryDelay = FIRST_RETRY_DELAY_MS
-                delay(REFRESH_INTERVAL_MS)
+                delay(REFRESH_INTERVAL_MS.milliseconds)
             } else {
                 // Offline or a service hiccup: keep showing the last result and retry with backoff.
-                delay(retryDelay)
+                delay(retryDelay.milliseconds)
                 retryDelay = (retryDelay * 2).coerceAtMost(MAX_RETRY_DELAY_MS)
             }
         }

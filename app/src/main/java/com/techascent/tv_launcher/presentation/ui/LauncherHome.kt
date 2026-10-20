@@ -208,7 +208,7 @@ fun LauncherHome(
                                 }
                             }
                         }
-                        PlayStoreSection(onClick = onPlayStoreClick)
+                        //PlayStoreSection(onClick = onPlayStoreClick)
                     }
                 }
             }

@@ -2,6 +2,18 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROPS="$PROJECT_ROOT/local.properties"
+read_prop() {
+    [[ -f "$PROPS" ]] || return 0
+    sed -n "s/^[[:space:]]*$1[[:space:]]*=[[:space:]]*//p" "$PROPS" | tr -d '\r' | tail -1
+}
+TV_IP="${TV_IP:-$(read_prop tv.ip)}"
+TV_PORT_PROP="${TV_PORT:-$(read_prop tv.port)}"
+if [[ -z "$TV_IP" ]]; then
+    echo "TV IP not set. Add 'tv.ip=<address>' to $PROPS (or run with TV_IP=...)." >&2
+    exit 1
+fi
+TV_SERIAL="$TV_IP:${TV_PORT_PROP:-5555}"
 TV_SERIAL="192.168.0.6:5555"
 COMPONENT="com.techascent.tv_launcher/.MainActivity"
 APK="$PROJECT_ROOT/app/build/outputs/apk/release/app-release.apk"
