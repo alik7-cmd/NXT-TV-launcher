@@ -7,6 +7,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
@@ -18,13 +19,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.techascent.tv_launcher.presentation.LauncherViewModel
-import com.techascent.tv_launcher.presentation.WeatherUiState
 import com.techascent.tv_launcher.presentation.WeatherViewModel
 import com.techascent.tv_launcher.presentation.navigation.LauncherNavigator
-import com.techascent.tv_launcher.presentation.ui.FavoritePickerPanel
-import com.techascent.tv_launcher.presentation.ui.LauncherHome
-import com.techascent.tv_launcher.presentation.ui.USE_WEATHER_HERO
-import com.techascent.tv_launcher.presentation.ui.launcherBackground
+import com.techascent.tv_launcher.presentation.ui.picker.FavoritePickerPanelV2
+import com.techascent.tv_launcher.presentation.ui.common.launcherBackground
+import com.techascent.tv_launcher.presentation.ui.common.LauncherBackgroundPicker
+import com.techascent.tv_launcher.presentation.ui.home.LauncherHomeV2
 import com.techascent.tv_launcher.ui.theme.TVLauncherTheme
 import kotlinx.coroutines.launch
 
@@ -48,12 +48,10 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             TVLauncherTheme {
+                //val backgroundPalette = rememberSaveable { LauncherBackgroundPicker().pick() }
                 val uiState by launcherViewModel.uiState.collectAsStateWithLifecycle()
-                val headerState by launcherViewModel.headerState.collectAsStateWithLifecycle()
-                // Not collecting keeps the weather flow cold, so nothing is fetched when it's switched off.
-                val weatherState = if (USE_WEATHER_HERO) {
-                    weatherViewModel.uiState.collectAsStateWithLifecycle().value
-                } else WeatherUiState.Hidden
+                val weatherState by weatherViewModel.uiState.collectAsStateWithLifecycle()
+                val forecastState by weatherViewModel.forecastState.collectAsStateWithLifecycle()
                 Box(modifier = Modifier.fillMaxSize()) {
                     // Separate cached layer: the gradients are rendered once instead of on
                     // every scroll frame, which low-end TV GPUs can't keep up with.
@@ -63,23 +61,22 @@ class MainActivity : ComponentActivity() {
                             .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
                             .launcherBackground(),
                     )
-                    LauncherHome(
+                    LauncherHomeV2(
                         uiState = uiState,
-                        headerState = headerState,
                         weatherState = weatherState,
-                        onAppClick = launcherViewModel::onAppSelected,
-                        onAppLongClick = launcherViewModel::onAppLongPressed,
+                        forecastState = forecastState,
                         onInputClick = launcherViewModel::onInputSelected,
                         onSettingsClick = launcherViewModel::onSettingsSelected,
-                        onPlayStoreClick = launcherViewModel::onPlayStoreSelected,
-                        onAddFavoriteClick = launcherViewModel::onAddFavoriteSelected,
+                        onAppClick = launcherViewModel::onAppSelected,
+                        onAppLongClick = launcherViewModel::onAppLongPressed,
                         onFavoriteLongClick = launcherViewModel::onFavoriteLongPressed,
+                        onAddFavoriteClick = launcherViewModel::onAddFavoriteSelected,
                         onRemoveFavorite = launcherViewModel::onToggleFavoriteSelected,
                         onUninstall = launcherViewModel::onUninstallSelected,
                         onOptionsDismiss = launcherViewModel::onAppOptionsDismissed,
                     )
                     uiState.favoritePickerApps?.let { apps ->
-                        FavoritePickerPanel(
+                        FavoritePickerPanelV2(
                             apps = apps,
                             onSelect = launcherViewModel::onFavoriteAppPicked,
                             onDismiss = launcherViewModel::onFavoritePickerDismissed,

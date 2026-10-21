@@ -26,6 +26,9 @@
             <action android:name="com.android.tv.action.VIEW_INPUTS" />
         </intent>
         <intent>
+            <action android:name="com.mitv.tvhome.atv.app.tv.INPUTSOURCE_POPUP" />
+        </intent>
+        <intent>
             <action android:name="android.settings.TV_INPUT_SETTINGS" />
         </intent>
     </queries>

@@ -2,7 +2,10 @@ package com.techascent.tv_launcher.data.model
 
 import com.techascent.tv_launcher.domain.model.Weather
 import com.techascent.tv_launcher.domain.model.WeatherCondition
+import com.techascent.tv_launcher.domain.model.DailyForecast
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 data class LocationDto(
     val latitude: Double,
@@ -20,6 +23,8 @@ data class WeatherDto(
     val highC: Double,
     val lowC: Double,
     val hourlyPrecipitation: List<HourlyPrecipitationDto>,
+    val timezone: ZoneId = ZoneId.of("UTC"),
+    val dailyForecast: List<DailyForecastDto> = emptyList(),
 ) {
     fun toDomain(): Weather {
         val condition = conditionFor(weatherCode)
@@ -38,6 +43,16 @@ data class WeatherDto(
                 }
                 ?.time
                 ?.toLocalTime(),
+            timezone = timezone,
+            dailyForecast = dailyForecast.map {
+                DailyForecast(
+                    date = it.date,
+                    condition = it.weatherCode?.let(::conditionFor),
+                    highC = it.highC,
+                    lowC = it.lowC,
+                    maxPrecipitationProbability = it.maxPrecipitationProbability?.takeIf { value -> value in 0..100 },
+                )
+            },
         )
     }
 
@@ -62,4 +77,12 @@ data class WeatherDto(
 data class HourlyPrecipitationDto(
     val time: LocalDateTime,
     val probabilityPercent: Int,
+)
+
+data class DailyForecastDto(
+    val date: LocalDate,
+    val weatherCode: Int?,
+    val highC: Double?,
+    val lowC: Double?,
+    val maxPrecipitationProbability: Int?,
 )

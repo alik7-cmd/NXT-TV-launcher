@@ -5,7 +5,6 @@ import androidx.compose.ui.unit.dp
 object LauncherSpacing {
     val AppMenuWidth = 280.dp
     val StoreBorderWidth = 1.dp
-    val StoreButtonCornerRadius = 32.dp
     val StoreIconSize = 20.dp
     val ExtraSmall = 4.dp
     val Small = 8.dp
@@ -15,16 +14,14 @@ object LauncherSpacing {
 
     val TileWidth = 120.dp
     val TileIconSize = 56.dp
-    val BannerCornerRadius = 12.dp
-    val BannerFocusedElevation = 16.dp
     val DockTileIconSize = 76.dp
     val TileCornerRadius = 20.dp
     val TileFocusGlow = 18.dp
 
-    val ButtonSize = 44.dp
+    val ButtonSize = 40.dp
     val ButtonCornerRadius = 22.dp
     val ButtonIconSize = 20.dp
-    val ButtonHorizontalPadding = 12.dp
+    val ButtonHorizontalPadding = 10.dp
     val ButtonLabelMaxWidth = 200.dp
 
     val FocusBorderWidth = 3.dp

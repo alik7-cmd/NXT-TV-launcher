@@ -37,4 +37,9 @@
     <string name="weather_temperature">%1$d°</string>
     <string name="weather_high_low">H %1$d°  L %2$d°</string>
     <string name="weather_rain_at">Rain at %1$s</string>
+    <string name="weather_forecast_heading">Next 5 days</string>
+    <string name="weather_chart_high">High</string>
+    <string name="weather_chart_low">Low</string>
+    <string name="weather_rain_chance">%1$d%% rain</string>
+    <string name="weather_unavailable_value">--</string>
 </resources>

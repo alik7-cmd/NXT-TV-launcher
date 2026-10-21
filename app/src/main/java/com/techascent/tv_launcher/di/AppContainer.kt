@@ -8,15 +8,18 @@ import com.techascent.tv_launcher.data.repository.FavoriteAppsRepositoryImpl
 import com.techascent.tv_launcher.data.remote.HttpWeatherRemoteDataSource
 import com.techascent.tv_launcher.data.repository.InstalledAppsRepositoryImpl
 import com.techascent.tv_launcher.data.repository.WeatherRepositoryImpl
-import com.techascent.tv_launcher.domain.usecase.ObserveFavoriteApps
-import com.techascent.tv_launcher.domain.usecase.ObserveInstalledApps
+import com.techascent.tv_launcher.domain.usecase.ObserveLauncherApps
 import com.techascent.tv_launcher.domain.usecase.ObserveWeather
 import com.techascent.tv_launcher.domain.usecase.ToggleFavoriteApp
 import com.techascent.tv_launcher.presentation.LauncherViewModel
+import com.techascent.tv_launcher.LauncherConfig
 import com.techascent.tv_launcher.presentation.WeatherViewModel
 
 /** Manual dependency graph, created once per process and shared across configuration changes. */
-class AppContainer(context: Context) {
+class AppContainer(
+    context: Context,
+    private val config: LauncherConfig = LauncherConfig(),
+) {
     private val appContext = context.applicationContext
 
     private val installedAppsRepository by lazy { InstalledAppsRepositoryImpl(appContext) }
@@ -26,14 +29,18 @@ class AppContainer(context: Context) {
     val launcherViewModelFactory: ViewModelProvider.Factory = viewModelFactory {
         initializer {
             LauncherViewModel(
-                observeInstalledApps = ObserveInstalledApps(installedAppsRepository),
-                observeFavoriteApps = ObserveFavoriteApps(favoriteAppsRepository),
+                observeLauncherApps = ObserveLauncherApps(installedAppsRepository, favoriteAppsRepository),
                 toggleFavoriteApp = ToggleFavoriteApp(favoriteAppsRepository),
             )
         }
     }
 
     val weatherViewModelFactory: ViewModelProvider.Factory = viewModelFactory {
-        initializer { WeatherViewModel(ObserveWeather(weatherRepository)) }
+        initializer {
+            WeatherViewModel(
+                observeWeather = ObserveWeather(weatherRepository),
+                config = config,
+            )
+        }
     }
 }

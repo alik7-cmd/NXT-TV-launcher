@@ -3,8 +3,9 @@
 A minimal, ad-free home screen for Android TV / Google TV, built with Jetpack Compose.
 
 - Collapsing header: greeting, large clock (follows the TV's 12/24-hour setting) and date, plus Inputs and Settings buttons whose labels expand on focus. While scrolling it shrinks into a compact translucent bar; Back returns to the top.
-- **Weather hero:** a soft weather scene (sun, moon, clouds, rain, snow, fog or thunder, by day or night) fades in behind the top-right corner with the temperature, condition, city, high/low and "Rain at …" when rain is likely in the next 12 hours. It fades out as the header collapses, and a small weather pill appears in the bar. Location is approximate, from the network's public IP (GeoJS, falling back to ipwho.is); the forecast comes from Open-Meteo. No API keys and no location permission are needed. It refreshes every 30 minutes while the launcher is visible and stays hidden when offline. Set `USE_WEATHER_HERO = false` in `LauncherHome.kt` to remove it from the screen.
+- **Weather hero:** a soft weather scene (sun, moon, clouds, rain, snow, fog or thunder, by day or night) fades in behind the top-right corner with the temperature, condition, city, high/low and "Rain at …" when rain is likely in the next 12 hours. It fades out as the header collapses, and a small weather pill appears in the bar. Location is approximate, from the network's public IP (GeoJS, falling back to ipwho.is); the forecast comes from Open-Meteo. No API keys and no location permission are needed. It refreshes every 30 minutes while the launcher is visible and stays hidden when offline. The art animates gently (drifting cloud, pulsing glow, twinkling stars, falling rain and snow). Both can be switched off in `LauncherConfig.kt`: `useWeatherHero = false` removes weather from the screen, and `animateWeatherArt = false` keeps the art still.
 - **Favourites** dock (one horizontal row) above an **All apps** grid that wraps to the screen width
+- TV Material cards provide focus zoom, border, glow and long-press handling. The favourites row restores its last focused tile when revisited.
 - Only TV-launchable apps (`LEANBACK_LAUNCHER`) are listed; phone-only apps are excluded, including from favourites.
 - The background fills the entire screen without rounded window corners.
 - The trailing **Add app to favourite** tile opens a full-height side panel of TV apps not already in favourites; its long label scrolls automatically. The panel shows a message when all apps have been added.
@@ -201,8 +202,21 @@ the internet or enable it on an untrusted network.
 ```bash
 ./gradlew :app:assembleDebug
 ./gradlew :app:testDebugUnitTest
-./gradlew :app:lintDebug
+./gradlew :app:lintRelease
 ```
+
+For release frame timing, install an optimized release build, let startup settle, then reset
+the frame statistics and browse with the D-pad:
+
+```bash
+adb -s <TV_SERIAL> shell dumpsys gfxinfo com.techascent.tv_launcher reset
+# Move between rows and tiles with the remote.
+adb -s <TV_SERIAL> shell dumpsys gfxinfo com.techascent.tv_launcher
+```
+
+On the physical TV, aim for roughly 10 ms median and 14 ms at the 90th percentile or better.
+Emulator timings are not comparable to the TV's baseline. Compare raw screenshots before and
+after Left/Right on the first and middle All apps rows: the page should shift by 0 px.
 
 ## Viewing logs
 
@@ -220,8 +234,12 @@ collector starts with a fresh cache. Bitmaps are not manually recycled while the
 
 The weather scene uses one offscreen graphics layer for both its edge masks and its
 scroll-driven fade/translation. Drawing objects are cached, but compositing still costs GPU
-work. The scene, header animations and non-lazy app grid retain their existing appearance.
-These changes do not establish a measured FPS or memory improvement on a physical TV.
+work. The weather scene, collapsing header and non-lazy app grid retain their existing behavior.
+App tiles use TV Material 1.0.1 cards instead of custom focus, scale and shadow animations;
+header actions use TV Material buttons with labels that still expand on focus. The existing
+pivot scroll spec, snapping and 24 dp dead band remain in place to prevent sideways focus
+moves from shaking the page. These changes do not establish a measured FPS or memory
+improvement on a physical TV.
 
 ## Project structure
 

@@ -37,4 +37,9 @@
     <string name="weather_temperature">%1$d°</string>
     <string name="weather_high_low">Maks %1$d°  Min %2$d°</string>
     <string name="weather_rain_at">Regn kl. %1$s</string>
+    <string name="weather_forecast_heading">Neste 5 dager</string>
+    <string name="weather_chart_high">Maks</string>
+    <string name="weather_chart_low">Min</string>
+    <string name="weather_rain_chance">%1$d%% regn</string>
+    <string name="weather_unavailable_value">--</string>
 </resources>

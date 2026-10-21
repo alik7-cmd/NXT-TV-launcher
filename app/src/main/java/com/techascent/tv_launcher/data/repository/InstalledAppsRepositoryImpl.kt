@@ -43,7 +43,11 @@ class InstalledAppsRepositoryImpl(
                 }
                 changedPackage?.let(cache::invalidate)
                 emit(InstalledAppsUpdate.Loading)
-                emit(InstalledAppsUpdate.Loaded(loadApps(cache)))
+                emit(
+                    InstalledAppsUpdate.Loaded(
+                        loadApps(cache)
+                    )
+                )
             },
         )
     }.flowOn(Dispatchers.IO)

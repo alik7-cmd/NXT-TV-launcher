@@ -1,6 +1,8 @@
 package com.techascent.tv_launcher.domain.model
 
 import java.time.LocalTime
+import java.time.LocalDate
+import java.time.ZoneId
 
 data class Weather(
     val city: String?,
@@ -11,6 +13,16 @@ data class Weather(
     val lowC: Double,
     /** First hour in the next 12 hours that is likely to bring rain, when it isn't raining now. */
     val rainExpectedAt: LocalTime?,
+    val timezone: ZoneId = ZoneId.of("UTC"),
+    val dailyForecast: List<DailyForecast> = emptyList(),
+)
+
+data class DailyForecast(
+    val date: LocalDate,
+    val condition: WeatherCondition?,
+    val highC: Double?,
+    val lowC: Double?,
+    val maxPrecipitationProbability: Int?,
 )
 
 enum class WeatherCondition {

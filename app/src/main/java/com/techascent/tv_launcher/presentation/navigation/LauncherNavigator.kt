@@ -44,7 +44,7 @@ class LauncherNavigator(private val context: Context) {
 
     /** Opens the system input picker (HDMI etc.) like the stock launcher, then falls back to settings. */
     private fun openInputs() {
-        val intent = listOf(VIEW_INPUTS, TV_INPUT_SETTINGS)
+        val intent = listOf(VIEW_INPUTS, MITV_INPUT_POPUP, TV_INPUT_SETTINGS)
             .map(::Intent)
             .firstOrNull { it.resolveActivity(context.packageManager) != null }
             ?: Intent(Settings.ACTION_SETTINGS)
@@ -61,6 +61,8 @@ class LauncherNavigator(private val context: Context) {
 
     private companion object {
         const val VIEW_INPUTS = "com.android.tv.action.VIEW_INPUTS"
+        // Mi TV firmware ships its input picker under its own action instead of the AOSP one.
+        const val MITV_INPUT_POPUP = "com.mitv.tvhome.atv.app.tv.INPUTSOURCE_POPUP"
         const val TV_INPUT_SETTINGS = "android.settings.TV_INPUT_SETTINGS"
     }
 }

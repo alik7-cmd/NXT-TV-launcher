@@ -2,6 +2,7 @@ package com.techascent.tv_launcher.data
 
 import com.techascent.tv_launcher.data.model.HourlyPrecipitationDto
 import com.techascent.tv_launcher.data.model.WeatherDto
+import com.techascent.tv_launcher.data.model.DailyForecastDto
 import com.techascent.tv_launcher.domain.model.WeatherCondition
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -52,5 +53,27 @@ class WeatherDtoTest {
     fun `no rain time when it is already wet or rain is too far away`() {
         assertNull(dto(code = 63, rain = listOf(2 to 90)).toDomain().rainExpectedAt)
         assertNull(dto(rain = listOf(13 to 90)).toDomain().rainExpectedAt)
+    }
+
+    @Test
+    fun `daily forecast maps conditions temperatures and valid rain probabilities`() {
+        val weather = dto().copy(
+            dailyForecast = listOf(
+                DailyForecastDto(now.toLocalDate().plusDays(1), 63, 10.5, 4.0, 75),
+                DailyForecastDto(now.toLocalDate().plusDays(2), null, null, null, 120),
+            ),
+        ).toDomain()
+
+        assertEquals(2, weather.dailyForecast.size)
+        val first = weather.dailyForecast.first()
+        assertEquals(WeatherCondition.Rain, first.condition)
+        assertEquals(10.5, first.highC)
+        assertEquals(4.0, first.lowC)
+        assertEquals(75, first.maxPrecipitationProbability)
+        val missing = weather.dailyForecast.last()
+        assertNull(missing.condition)
+        assertNull(missing.highC)
+        assertNull(missing.lowC)
+        assertNull(missing.maxPrecipitationProbability)
     }
 }
