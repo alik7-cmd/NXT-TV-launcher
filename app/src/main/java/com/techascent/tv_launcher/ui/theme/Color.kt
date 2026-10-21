@@ -32,4 +32,10 @@ object LauncherColors {
     val BackgroundGlow = Color(0x553A6FD8)
     val BackgroundVignette = Color(0x99000000)
     val DialogBackground = Color(0xFF1B2638)
+    val DialogBorder = Color(0x26FFFFFF)
+    val DialogDivider = Color(0x1AFFFFFF)
+    val DialogOptionFocused = Color(0xFFE8F0FE)
+    val DialogOptionFocusedText = Color(0xFF0B1A30)
+    val DestructiveFocused = Color(0xFFFFDAD6)
+    val DestructiveFocusedText = Color(0xFF8C1D18)
 }

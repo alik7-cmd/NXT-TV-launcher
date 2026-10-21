@@ -10,5 +10,4 @@ sealed interface LauncherEffect {
 
     data object OpenInputs : LauncherEffect
     data object OpenSettings : LauncherEffect
-    data object OpenPlayStore : LauncherEffect
 }
