@@ -33,13 +33,12 @@ class BaselineProfileGenerator {
         startLauncherAndAwaitFocus()
     }
 
-    /** D-pad browsing, Back-to-top and the favourite picker; merged into the Baseline Profile only. */
+    /** D-pad browsing and Back-to-top navigation. */
     @Test
     fun dpadNavigation() = rule.collect(
         packageName = targetAppId(),
     ) {
         startLauncherAndAwaitFocus()
         browseHomeWithDpad()
-        openAndDismissFavoritePicker()
     }
 }

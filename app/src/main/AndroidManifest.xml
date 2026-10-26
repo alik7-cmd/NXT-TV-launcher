@@ -10,9 +10,6 @@
 
     <!-- Lets the launcher open the system uninstall confirmation for user-installed apps. -->
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
-    <!-- Weather: approximate location from the public IP address, forecast from Open-Meteo. -->
-    <uses-permission android:name="android.permission.INTERNET" />
-
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN" />
@@ -24,6 +21,9 @@
         </intent>
         <intent>
             <action android:name="com.android.tv.action.VIEW_INPUTS" />
+        </intent>
+        <intent>
+            <action android:name="com.mitv.tvhome.atv.app.tv.INPUTSOURCE_POPUP" />
         </intent>
         <intent>
             <action android:name="android.settings.TV_INPUT_SETTINGS" />

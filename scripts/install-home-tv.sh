@@ -14,7 +14,6 @@ if [[ -z "$TV_IP" ]]; then
     exit 1
 fi
 TV_SERIAL="$TV_IP:${TV_PORT_PROP:-5555}"
-TV_SERIAL="192.168.0.6:5555"
 COMPONENT="com.techascent.tv_launcher/.MainActivity"
 APK="$PROJECT_ROOT/app/build/outputs/apk/release/app-release.apk"
 
