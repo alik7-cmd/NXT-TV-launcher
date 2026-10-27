@@ -23,11 +23,11 @@ import com.techascent.tv_launcher.presentation.ui.common.SectionTitle
 import com.techascent.tv_launcher.presentation.ui.common.bleed
 import com.techascent.tv_launcher.ui.theme.LauncherSpacing
 
-internal const val RECENT_APPS_SLOTS = 5
+internal const val PINNED_APPS_SLOTS = 5
 
-/** Hidden until an app has been launched; load errors are already shown in the apps section. */
+/** Hidden when no apps are pinned; load errors are already shown in the apps section. */
 @Composable
-internal fun RecentApps(
+internal fun PinnedApps(
     state: UiState<List<LauncherAppUiState>>,
     onAppClick: (LauncherAppUiState) -> Unit,
     onAppLongClick: (LauncherAppUiState) -> Unit,
@@ -42,24 +42,24 @@ internal fun RecentApps(
         is UiState.Success -> state.data.ifEmpty { return }
     }
     Column(verticalArrangement = Arrangement.spacedBy(LauncherSpacing.Small)) {
-        SectionTitle(stringResource(R.string.recent_apps_heading))
+        SectionTitle(stringResource(R.string.pinned_apps_heading))
         if (apps == null) {
             if (circular) {
                 ShimmerCircleRow(
-                    count = RECENT_APPS_SLOTS,
+                    count = PINNED_APPS_SLOTS,
                     size = LauncherSpacing.CircularItemSize,
-                    modifier = Modifier.padding(vertical = RECENT_FOCUS_ROOM),
+                    modifier = Modifier.padding(vertical = PINNED_FOCUS_ROOM),
                 )
             } else {
-                ShimmerRectangleRow(count = RECENT_APPS_SLOTS, tileWidth = tileWidth)
+                ShimmerRectangleRow(count = PINNED_APPS_SLOTS, tileWidth = tileWidth)
             }
         } else {
             LazyRow(
-                modifier = modifier.bleed(RECENT_FOCUS_ROOM),
+                modifier = modifier.bleed(PINNED_FOCUS_ROOM),
                 horizontalArrangement = Arrangement.spacedBy(
                     if (circular) LauncherSpacing.CircularItemGap else LauncherSpacing.Medium,
                 ),
-                contentPadding = PaddingValues(horizontal = RECENT_FOCUS_ROOM, vertical = RECENT_FOCUS_ROOM),
+                contentPadding = PaddingValues(horizontal = PINNED_FOCUS_ROOM, vertical = PINNED_FOCUS_ROOM),
             ) {
                 items(apps, key = { it.packageName }) { app ->
                     if (circular) {
@@ -85,4 +85,4 @@ internal fun RecentApps(
     }
 }
 
-private val RECENT_FOCUS_ROOM = 24.dp
+private val PINNED_FOCUS_ROOM = 24.dp

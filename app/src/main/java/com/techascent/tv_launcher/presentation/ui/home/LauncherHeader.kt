@@ -38,7 +38,7 @@ import com.techascent.tv_launcher.ui.theme.LauncherSpacing
 internal fun LauncherHeader(
     visible: Boolean,
     header: LauncherHeaderUiState?,
-    recentApps: UiState<List<LauncherAppUiState>>,
+    pinnedApps: List<LauncherAppUiState>,
     circular: Boolean,
     tileWidth: Dp,
     showAppNames: Boolean,
@@ -48,7 +48,7 @@ internal fun LauncherHeader(
     onSettingsClick: () -> Unit,
     onCustomizeClick: () -> Unit,
     topBarFocus: FocusRequester,
-    recentFocus: FocusRequester,
+    pinnedFocus: FocusRequester,
 ) {
     AnimatedVisibility(
         visible = visible,
@@ -70,11 +70,11 @@ internal fun LauncherHeader(
                 onCustomizeClick = onCustomizeClick,
                 modifier = Modifier.focusRequester(topBarFocus).focusRestorer(),
             )
-            RecentApps(
-                state = recentApps,
+            PinnedApps(
+                state = UiState.Success(pinnedApps),
                 onAppClick = onAppClick,
                 onAppLongClick = onAppLongClick,
-                modifier = Modifier.focusRequester(recentFocus).focusRestorer(),
+                modifier = Modifier.focusRequester(pinnedFocus).focusRestorer(),
                 circular = circular,
                 tileWidth = tileWidth,
                 showAppNames = showAppNames,

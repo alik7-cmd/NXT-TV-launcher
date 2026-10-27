@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.techascent.tv_launcher.data.repository.AppStyleRepositoryImpl
+import com.techascent.tv_launcher.data.repository.AppOrganizationRepositoryImpl
 import com.techascent.tv_launcher.data.repository.InstalledAppsRepositoryImpl
 import com.techascent.tv_launcher.data.repository.RecentAppsRepositoryImpl
 import com.techascent.tv_launcher.domain.usecase.ObserveLauncherApps
@@ -19,6 +20,7 @@ class AppContainer(context: Context) {
     private val installedAppsRepository by lazy { InstalledAppsRepositoryImpl(appContext) }
     private val appStyleRepository by lazy { AppStyleRepositoryImpl(appContext) }
     private val recentAppsRepository by lazy { RecentAppsRepositoryImpl(appContext) }
+    private val appOrganizationRepository by lazy { AppOrganizationRepositoryImpl(appContext) }
 
     val launcherViewModelFactory: ViewModelProvider.Factory = viewModelFactory {
         initializer {
@@ -27,6 +29,7 @@ class AppContainer(context: Context) {
                 observeRecentApps = ObserveRecentApps(recentAppsRepository),
                 recordAppLaunch = RecordAppLaunch(recentAppsRepository),
                 appStyleRepository = appStyleRepository,
+                appOrganizationRepository = appOrganizationRepository,
             )
         }
     }

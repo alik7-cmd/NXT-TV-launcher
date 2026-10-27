@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.techascent.tv_launcher.R
 import com.techascent.tv_launcher.domain.model.AppStyle
+import com.techascent.tv_launcher.domain.model.AppSortOrder
 import com.techascent.tv_launcher.domain.model.LauncherWallpaper
 import com.techascent.tv_launcher.presentation.state.LauncherAppUiState
 import com.techascent.tv_launcher.presentation.state.LauncherUiState
@@ -34,7 +35,7 @@ import com.techascent.tv_launcher.presentation.ui.options.AppOptionsDialog
 import com.techascent.tv_launcher.ui.theme.LauncherSpacing
 import kotlinx.coroutines.launch
 
-/** Photo-background home with recent apps above the installed-app grid. */
+/** Photo-background home with pinned apps in the header above the installed-app grid. */
 @Composable
 fun LauncherHome(
     uiState: LauncherUiState,
@@ -49,12 +50,16 @@ fun LauncherHome(
     onCustomizeDismiss: () -> Unit,
     onShowAppNamesSelected: (Boolean) -> Unit,
     onWallpaperApplied: (LauncherWallpaper) -> Unit,
+    onPin: (LauncherAppUiState) -> Unit,
+    onHide: (LauncherAppUiState) -> Unit,
+    onRestoreApp: (LauncherAppUiState) -> Unit,
+    onSortOrderSelected: (AppSortOrder) -> Unit,
 ) {
     val circular = uiState.appStyle == AppStyle.Circle
     if (uiState.customizeOpen) {
         CustomizeDialog(
             selected = uiState.appStyle,
-            previewApp = (uiState.recentApps as? UiState.Success)?.data?.firstOrNull()
+            previewApp = uiState.pinnedApps.firstOrNull()
                 ?: (uiState.allApps as? UiState.Success)?.data?.firstOrNull(),
             onSelect = onAppStyleSelected,
             onDismiss = onCustomizeDismiss,
@@ -62,6 +67,10 @@ fun LauncherHome(
             onShowAppNamesSelected = onShowAppNamesSelected,
             wallpaper = uiState.wallpaper,
             onWallpaperApplied = onWallpaperApplied,
+            sortOrder = uiState.sortOrder,
+            onSortOrderSelected = onSortOrderSelected,
+            hiddenApps = uiState.hiddenApps,
+            onRestoreApp = onRestoreApp,
         )
     }
     uiState.appOptions?.let { app ->
@@ -70,12 +79,15 @@ fun LauncherHome(
             onOpen = { onAppClick(app) },
             onUninstall = { onUninstall(app) },
             onDismiss = onOptionsDismiss,
+            isPinned = app.packageName in uiState.pinnedPackages,
+            onPin = { onPin(app) },
+            onHide = { onHide(app) },
         )
     }
 
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val recentFocus = remember { FocusRequester() }
+    val pinnedFocus = remember { FocusRequester() }
     val topBarFocus = remember { FocusRequester() }
     // Keep the header available from the first apps row; hide it once focus moves further down.
     val focusedRows = remember { mutableStateMapOf<Int, Boolean>() }
@@ -84,8 +96,10 @@ fun LauncherHome(
         focusedRows.clear()
         scope.launch {
             listState.animateScrollToItem(0)
-            // The recent row may not be composed when it is empty or loading.
-            runCatching { recentFocus.requestFocus() }.onFailure { runCatching { topBarFocus.requestFocus() } }
+            // The pinned shelf may be empty or still entering the composition.
+            runCatching {
+                if (uiState.pinnedApps.isNotEmpty()) pinnedFocus.requestFocus() else topBarFocus.requestFocus()
+            }.onFailure { runCatching { topBarFocus.requestFocus() } }
         }
     }
 
@@ -107,10 +121,10 @@ fun LauncherHome(
             } else {
                 gridTileLayout(contentWidth)
             }
-            val recentTileWidth = if (circular) {
+            val pinnedTileWidth = if (circular) {
                 LauncherSpacing.CircularItemSize
             } else {
-                (contentWidth - LauncherSpacing.Medium * (RECENT_APPS_SLOTS - 1)) / RECENT_APPS_SLOTS
+                (contentWidth - LauncherSpacing.Medium * (PINNED_APPS_SLOTS - 1)) / PINNED_APPS_SLOTS
             }
 
             LauncherScaffold(
@@ -118,9 +132,9 @@ fun LauncherHome(
                     LauncherHeader(
                         visible = headerVisible,
                         header = (uiState.header as? UiState.Success)?.data,
-                        recentApps = uiState.recentApps,
+                        pinnedApps = uiState.pinnedApps,
                         circular = circular,
-                        tileWidth = recentTileWidth,
+                        tileWidth = pinnedTileWidth,
                         showAppNames = uiState.showAppNames,
                         onAppClick = onAppClick,
                         onAppLongClick = onAppLongClick,
@@ -128,7 +142,7 @@ fun LauncherHome(
                         onSettingsClick = onSettingsClick,
                         onCustomizeClick = onCustomizeClick,
                         topBarFocus = topBarFocus,
-                        recentFocus = recentFocus,
+                        pinnedFocus = pinnedFocus,
                     )
                 },
             ) {

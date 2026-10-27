@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import com.techascent.tv_launcher.domain.model.AppStyle
+import com.techascent.tv_launcher.domain.model.AppSortOrder
 import com.techascent.tv_launcher.domain.model.LauncherWallpaper
 import com.techascent.tv_launcher.domain.model.InstalledApp
 
@@ -31,8 +32,10 @@ data class LauncherAppUiState(
 data class LauncherUiState(
     val header: UiState<LauncherHeaderUiState> = UiState.Loading,
     val allApps: UiState<List<LauncherAppUiState>> = UiState.Loading,
-    /** Up to five apps most recently launched from the launcher, newest first. */
-    val recentApps: UiState<List<LauncherAppUiState>> = UiState.Loading,
+    val pinnedApps: List<LauncherAppUiState> = emptyList(),
+    val hiddenApps: List<LauncherAppUiState> = emptyList(),
+    val pinnedPackages: List<String> = emptyList(),
+    val sortOrder: AppSortOrder = AppSortOrder.Alphabetical,
     /** App whose options popup is open, or null when no popup is shown. */
     val appOptions: LauncherAppUiState? = null,
     val appStyle: AppStyle = AppStyle.Banner,

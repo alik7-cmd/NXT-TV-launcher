@@ -18,7 +18,17 @@
     <string name="style_banner">Rectangle</string>
     <string name="style_circle">Circle</string>
     <string name="done">Done</string>
-    <string name="recent_apps_heading">Recent apps</string>
     <string name="uninstall">Uninstall</string>
+    <string name="pin_app">Pin</string>
+    <string name="unpin_app">Unpin</string>
+    <string name="hide_app">Hide</string>
+    <string name="pinned_apps_heading">Pinned apps</string>
+    <string name="sort_apps">Sort apps</string>
+    <string name="sort_alphabetical">Alphabetical</string>
+    <string name="sort_recently_used">Recently used</string>
+    <string name="manage_hidden_apps">Manage hidden apps</string>
+    <string name="hidden_apps_hint">Select an app to restore it to the home screen.</string>
+    <string name="hidden_apps_empty">No hidden apps installed.</string>
+    <string name="restore_app">Restore %1$s</string>
     <string name="uninstall_unavailable">System apps can\'t be uninstalled</string>
 </resources>

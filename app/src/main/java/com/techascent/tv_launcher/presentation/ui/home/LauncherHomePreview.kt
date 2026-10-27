@@ -18,7 +18,7 @@ private fun LauncherHomePreview() {
     LauncherHomePreview(
         LauncherUiState(
             header = UiState.Success(LauncherHeaderUiState.from(ZonedDateTime.parse("2026-10-19T09:56:00+02:00"))),
-            recentApps = UiState.Success(previewApps.take(RECENT_APPS_SLOTS)),
+            pinnedApps = previewApps.take(PINNED_APPS_SLOTS),
             allApps = UiState.Success(previewApps),
         ),
     )
@@ -44,6 +44,10 @@ private fun LauncherHomePreview(uiState: LauncherUiState) {
             onCustomizeDismiss = {},
             onShowAppNamesSelected = {},
             onWallpaperApplied = {},
+            onPin = {},
+            onHide = {},
+            onRestoreApp = {},
+            onSortOrderSelected = {},
         )
     }
 }

@@ -12,11 +12,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
@@ -53,6 +56,7 @@ import androidx.tv.material3.Surface
 import androidx.tv.material3.Text
 import com.techascent.tv_launcher.R
 import com.techascent.tv_launcher.domain.model.AppStyle
+import com.techascent.tv_launcher.domain.model.AppSortOrder
 import com.techascent.tv_launcher.domain.model.LauncherWallpaper
 import com.techascent.tv_launcher.presentation.state.LauncherAppUiState
 import com.techascent.tv_launcher.presentation.ui.common.AppIcon
@@ -74,12 +78,29 @@ fun CustomizeDialog(
     onShowAppNamesSelected: (Boolean) -> Unit,
     wallpaper: LauncherWallpaper,
     onWallpaperApplied: (LauncherWallpaper) -> Unit,
+    sortOrder: AppSortOrder,
+    onSortOrderSelected: (AppSortOrder) -> Unit,
+    hiddenApps: List<LauncherAppUiState>,
+    onRestoreApp: (LauncherAppUiState) -> Unit,
 ) {
     val bannerFocus = remember { FocusRequester() }
     val circleFocus = remember { FocusRequester() }
     var choosingWallpaper by rememberSaveable { mutableStateOf(false) }
-    Dialog(onDismissRequest = { if (choosingWallpaper) choosingWallpaper = false else onDismiss() }) {
-        if (choosingWallpaper) {
+    var managingHidden by rememberSaveable { mutableStateOf(false) }
+    Dialog(onDismissRequest = {
+        when {
+            choosingWallpaper -> choosingWallpaper = false
+            managingHidden -> managingHidden = false
+            else -> onDismiss()
+        }
+    }) {
+        if (managingHidden) {
+            HiddenAppsContent(
+                apps = hiddenApps,
+                onRestoreApp = onRestoreApp,
+                onBack = { managingHidden = false },
+            )
+        } else if (choosingWallpaper) {
             WallpaperPicker(
                 selected = wallpaper,
                 onApply = onWallpaperApplied,
@@ -90,11 +111,16 @@ fun CustomizeDialog(
                 selected, previewApp ?: SamplePreviewApp, onSelect, onDismiss, bannerFocus, circleFocus,
                 showAppNames, onShowAppNamesSelected,
                 onWallpaperClick = { choosingWallpaper = true },
+                sortOrder = sortOrder,
+                onSortOrderSelected = onSortOrderSelected,
+                onManageHiddenClick = { managingHidden = true },
             )
         }
     }
-    LaunchedEffect(choosingWallpaper) {
-        if (!choosingWallpaper) (if (selected == AppStyle.Circle) circleFocus else bannerFocus).requestFocus()
+    LaunchedEffect(choosingWallpaper, managingHidden) {
+        if (!choosingWallpaper && !managingHidden) {
+            (if (selected == AppStyle.Circle) circleFocus else bannerFocus).requestFocus()
+        }
     }
 }
 
@@ -109,14 +135,19 @@ private fun CustomizeContent(
     showAppNames: Boolean,
     onShowAppNamesSelected: (Boolean) -> Unit,
     onWallpaperClick: () -> Unit,
+    sortOrder: AppSortOrder = AppSortOrder.Alphabetical,
+    onSortOrderSelected: (AppSortOrder) -> Unit = {},
+    onManageHiddenClick: () -> Unit = {},
 ) {
     val shape = RoundedCornerShape(LauncherSpacing.DialogCornerRadius)
     Column(
         modifier = Modifier
             .width(LauncherSpacing.DialogWidth)
+            .heightIn(max = 440.dp)
             .clip(shape)
             .background(LauncherColors.DialogBackground)
             .border(1.dp, LauncherColors.DialogBorder, shape)
+            .verticalScroll(rememberScrollState())
             .padding(LauncherSpacing.Large),
         verticalArrangement = Arrangement.spacedBy(LauncherSpacing.Medium),
     ) {
@@ -184,6 +215,49 @@ private fun CustomizeContent(
                 fontSize = 16.sp,
                 modifier = Modifier.padding(LauncherSpacing.Medium),
             )
+        }
+        Surface(
+            onClick = onManageHiddenClick,
+            modifier = Modifier.fillMaxWidth(),
+            shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(LauncherSpacing.Medium)),
+            scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
+            colors = optionColors(),
+        ) {
+            Text(
+                stringResource(R.string.manage_hidden_apps),
+                fontSize = 16.sp,
+                modifier = Modifier.padding(LauncherSpacing.Medium),
+            )
+        }
+        Text(stringResource(R.string.sort_apps), color = LauncherColors.TextPrimary, fontSize = 16.sp)
+        Row(horizontalArrangement = Arrangement.spacedBy(LauncherSpacing.Small)) {
+            AppSortOrder.entries.forEach { order ->
+                Surface(
+                    onClick = { onSortOrderSelected(order) },
+                    modifier = Modifier.weight(1f).semantics {
+                        role = Role.RadioButton
+                        this.selected = order == sortOrder
+                    },
+                    shape = ClickableSurfaceDefaults.shape(RoundedCornerShape(LauncherSpacing.Medium)),
+                    scale = ClickableSurfaceDefaults.scale(focusedScale = 1.02f),
+                    colors = optionColors(),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(LauncherSpacing.Medium),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(LauncherSpacing.Small),
+                    ) {
+                        SelectionDot(order == sortOrder)
+                        Text(
+                            stringResource(
+                                if (order == AppSortOrder.Alphabetical) R.string.sort_alphabetical
+                                else R.string.sort_recently_used,
+                            ),
+                            fontSize = 14.sp,
+                        )
+                    }
+                }
+            }
         }
         Surface(
             onClick = onDone,

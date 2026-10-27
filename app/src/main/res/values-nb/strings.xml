@@ -18,7 +18,17 @@
     <string name="style_banner">Rektangel</string>
     <string name="style_circle">Sirkel</string>
     <string name="done">Ferdig</string>
-    <string name="recent_apps_heading">Nylige apper</string>
     <string name="uninstall">Avinstaller</string>
+    <string name="pin_app">Fest</string>
+    <string name="unpin_app">Løsne</string>
+    <string name="hide_app">Skjul</string>
+    <string name="pinned_apps_heading">Festede apper</string>
+    <string name="sort_apps">Sorter apper</string>
+    <string name="sort_alphabetical">Alfabetisk</string>
+    <string name="sort_recently_used">Sist brukt</string>
+    <string name="manage_hidden_apps">Administrer skjulte apper</string>
+    <string name="hidden_apps_hint">Velg en app for å vise den på startskjermen igjen.</string>
+    <string name="hidden_apps_empty">Ingen skjulte apper installert.</string>
+    <string name="restore_app">Vis %1$s igjen</string>
     <string name="uninstall_unavailable">Systemapper kan ikke avinstalleres</string>
 </resources>

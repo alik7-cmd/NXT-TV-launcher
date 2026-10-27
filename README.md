@@ -2,7 +2,9 @@
 
 A simple, ad-free launcher for **Android TV and Google TV (Android 10+)**, built with Kotlin and Jetpack Compose.
 
-Browse installed apps, jump back into your five most recently opened apps, and customize the home screen with circular icons or rectangular tiles, optional app names, and three wallpapers. Fully navigable with a TV remote.
+Browse installed apps, keep pinned favorites in the collapsing header, and customize the home screen with circular icons or rectangular tiles, optional app names, and three wallpapers. Fully navigable with a TV remote.
+
+Pin favorites in a horizontally scrolling row (in pin order), hide apps, or sort all apps alphabetically or by recent use. Pinned apps also remain in All apps. Hidden apps disappear from every home row; restore them through **Customize → Manage hidden apps**.
 
 ## Screenshots
 
@@ -70,8 +72,10 @@ Save the first command's `package/activity` output. To restore it, run `set-home
 |---------|--------|
 | D-pad | Move between apps and header actions |
 | OK | Open an app or select an option |
-| Hold OK on an app | Open its dialog: Open / Uninstall (system apps cannot be uninstalled) |
-| Customize icon | Change icon shape, app-name visibility, or wallpaper |
+| Hold OK on an app | Open / Pin or Unpin / Hide / Uninstall (system apps cannot be uninstalled) |
+| Customize icon | Change icon shape, app-name visibility, wallpaper, sorting, or restore hidden apps |
 | Back | Dismiss a dialog or return to the top when scrolled |
 
-Recent apps track launches made through this launcher. Wallpaper choices are applied with **Apply**; customization is saved between launches.
+Wallpaper choices are applied with **Apply**; customization is saved between launches.
+
+Recently used sorting uses local launcher launch history only (no usage-access permission); never-launched apps follow alphabetically. Pins, hidden apps, sorting, and launch history are saved locally. Hiding keeps an app's pin position and history, so restoring brings them back. Uninstalled apps do not appear; their saved preferences are retained for reinstallation.
