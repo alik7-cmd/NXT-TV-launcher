@@ -8,13 +8,17 @@ Pin favorites in a horizontally scrolling row (in pin order), hide apps, or sort
 
 ## Screenshots
 
-Captured from the app running on an Android TV emulator.
+Captured from the current app running on an Android TV emulator, with pinned apps enabled.
 
-![Home screen](docs/screenshots/home.png)
+![Home screen with pinned apps](docs/screenshots/home.png)
 
 | Customize | Wallpapers |
 |-----------|------------|
 | ![Icon style and app names](docs/screenshots/customize.png) | ![Wallpaper selector](docs/screenshots/wallpapers.png) |
+
+**App actions:** open, pin/unpin, hide, or uninstall.
+
+![App actions with Pin and Hide](docs/screenshots/app-options.png)
 
 ## Install
 
