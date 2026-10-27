@@ -46,13 +46,16 @@ import com.techascent.tv_launcher.ui.theme.LauncherColors
 import com.techascent.tv_launcher.ui.theme.LauncherSpacing
 import com.techascent.tv_launcher.ui.theme.TVLauncherTheme
 
-/** Centered dialog to open or uninstall [app]; Back dismisses it. */
+/** App actions; Back dismisses without changing anything. */
 @Composable
 fun AppOptionsDialog(
     app: LauncherAppUiState,
     onOpen: () -> Unit,
     onUninstall: () -> Unit,
     onDismiss: () -> Unit,
+    isPinned: Boolean,
+    onPin: () -> Unit,
+    onHide: () -> Unit,
 ) {
     val firstFocus = remember { FocusRequester() }
     // The long press that opened the dialog must not also click its first button.
@@ -62,6 +65,9 @@ fun AppOptionsDialog(
             app = app,
             onOpen = onOpen,
             onUninstall = onUninstall,
+            isPinned = isPinned,
+            onPin = onPin,
+            onHide = onHide,
             firstFocus = firstFocus,
             modifier = Modifier.onPreviewKeyEvent { event ->
                 val key = event.nativeKeyEvent
@@ -87,6 +93,9 @@ private fun AppOptionsContent(
     onUninstall: () -> Unit,
     firstFocus: FocusRequester,
     modifier: Modifier = Modifier,
+    isPinned: Boolean = false,
+    onPin: () -> Unit = {},
+    onHide: () -> Unit = {},
 ) {
     val shape = RoundedCornerShape(LauncherSpacing.DialogCornerRadius)
     Column(
@@ -111,6 +120,16 @@ private fun AppOptionsContent(
             iconRes = R.drawable.ic_open_app,
             onClick = onOpen,
             modifier = Modifier.focusRequester(firstFocus),
+        )
+        DialogOption(
+            text = stringResource(if (isPinned) R.string.unpin_app else R.string.pin_app),
+            iconRes = R.drawable.ic_pin,
+            onClick = onPin,
+        )
+        DialogOption(
+            text = stringResource(R.string.hide_app),
+            iconRes = R.drawable.ic_hide,
+            onClick = onHide,
         )
         DialogOption(
             text = stringResource(R.string.uninstall),

@@ -48,6 +48,10 @@ class MainActivity : ComponentActivity() {
                     onCustomizeDismiss = launcherViewModel::onCustomizeDismissed,
                     onShowAppNamesSelected = launcherViewModel::onShowAppNamesSelected,
                     onWallpaperApplied = launcherViewModel::onWallpaperApplied,
+                    onPin = launcherViewModel::onPinSelected,
+                    onHide = launcherViewModel::onHideSelected,
+                    onRestoreApp = launcherViewModel::onRestoreAppSelected,
+                    onSortOrderSelected = launcherViewModel::onSortOrderSelected,
                 )
             }
         }

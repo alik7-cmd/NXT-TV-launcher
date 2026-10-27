@@ -14,7 +14,6 @@ import com.techascent.tv_launcher.data.model.InstalledAppDto
 import com.techascent.tv_launcher.domain.model.InstalledAppsUpdate
 import com.techascent.tv_launcher.domain.model.InstalledApp
 import com.techascent.tv_launcher.domain.repository.InstalledAppsRepository
-import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
@@ -96,7 +95,6 @@ class InstalledAppsRepositoryImpl(
                     ).toDomain()
                 }
             }
-            .sortedBy { it.label.lowercase(Locale.getDefault()) }
     }
 
     private fun queryLauncherActivities(intent: Intent): List<ResolveInfo> =

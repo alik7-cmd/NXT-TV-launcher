@@ -4,6 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.techascent.tv_launcher.R
 import com.techascent.tv_launcher.domain.model.AppStyle
+import com.techascent.tv_launcher.domain.model.AppOrganization
+import com.techascent.tv_launcher.domain.model.AppSortOrder
+import com.techascent.tv_launcher.domain.repository.AppOrganizationRepository
+import com.techascent.tv_launcher.domain.usecase.ArrangeLauncherApps
 import com.techascent.tv_launcher.domain.model.LauncherWallpaper
 import com.techascent.tv_launcher.domain.model.LauncherAppsResult
 import com.techascent.tv_launcher.domain.repository.AppStyleRepository
@@ -33,6 +37,7 @@ class LauncherViewModel(
     private val observeRecentApps: ObserveRecentApps,
     private val recordAppLaunch: RecordAppLaunch,
     private val appStyleRepository: AppStyleRepository,
+    private val appOrganizationRepository: AppOrganizationRepository,
     private val clock: Flow<ZonedDateTime> = minuteTicker(),
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
@@ -45,7 +50,9 @@ class LauncherViewModel(
 
     private var installedApps: List<InstalledApp>? = null
     private var mappedApps: List<LauncherAppUiState> = emptyList()
-    private var recentPackages: List<String> = emptyList()
+    private var launchHistory: List<String> = emptyList()
+    private var organization = AppOrganization()
+    private val arrangeApps = ArrangeLauncherApps()
 
     init {
         viewModelScope.launch {
@@ -67,8 +74,15 @@ class LauncherViewModel(
         }
         viewModelScope.launch {
             observeRecentApps().collect { packages ->
-                recentPackages = packages
-                _uiState.update { if (it.allApps is UiState.Success) it.copy(recentApps = UiState.Success(recentApps())) else it }
+                launchHistory = packages
+                rebuildSections()
+            }
+        }
+        viewModelScope.launch {
+            appOrganizationRepository.observeOrganization().collect { settings ->
+                organization = settings
+                _uiState.update { it.copy(pinnedPackages = settings.pinnedPackages, sortOrder = settings.sortOrder) }
+                rebuildSections()
             }
         }
     }
@@ -77,15 +91,14 @@ class LauncherViewModel(
         observeLauncherApps().collect { result ->
             when (result) {
                 LauncherAppsResult.Init -> _uiState.update {
-                    it.copy(allApps = UiState.Loading, recentApps = UiState.Loading)
+                    it.copy(allApps = UiState.Loading)
                 }
                 is LauncherAppsResult.Success -> onAppsChanged(result)
                 is LauncherAppsResult.Error -> {
                     val previous = result.previous
                     if (previous != null) onAppsChanged(previous)
                     else _uiState.update {
-                        val error = UiState.Error(R.string.apps_load_error)
-                        it.copy(allApps = error, recentApps = error)
+                        it.copy(allApps = UiState.Error(R.string.apps_load_error))
                     }
                 }
             }
@@ -97,19 +110,26 @@ class LauncherViewModel(
             installedApps = result.apps
             mappedApps = result.apps.map(LauncherAppUiState::from)
         }
+        rebuildSections()
+    }
+
+    private fun rebuildSections() {
+        val apps = installedApps ?: return
+        val sections = arrangeApps(apps, launchHistory, organization)
+        val byPackage = mappedApps.associateBy { it.packageName }
+        fun List<InstalledApp>.toUi() = map { byPackage.getValue(it.packageName) }
         _uiState.update { current ->
             current.copy(
-                allApps = UiState.Success(mappedApps),
-                recentApps = UiState.Success(recentApps()),
+                allApps = UiState.Success(sections.all.toUi()),
+                pinnedApps = sections.pinned.toUi(),
+                hiddenApps = sections.hidden.toUi(),
                 // Resolve against the new list so the popup closes if its app was uninstalled.
-                appOptions = current.appOptions?.let { open -> mappedApps.firstOrNull { it.packageName == open.packageName } },
+                appOptions = current.appOptions?.let { open ->
+                    byPackage[open.packageName]?.takeUnless { it.packageName in organization.hiddenPackages }
+                },
             )
         }
     }
-
-    private fun recentApps() = recentPackages
-        .mapNotNull { packageName -> mappedApps.firstOrNull { it.packageName == packageName } }
-        .take(RECENT_APPS_LIMIT)
 
     fun onAppSelected(app: LauncherAppUiState) {
         onAppOptionsDismissed()
@@ -123,6 +143,24 @@ class LauncherViewModel(
 
     fun onAppOptionsDismissed() {
         _uiState.update { it.copy(appOptions = null) }
+    }
+
+    fun onPinSelected(app: LauncherAppUiState) {
+        onAppOptionsDismissed()
+        viewModelScope.launch { appOrganizationRepository.togglePin(app.packageName) }
+    }
+
+    fun onHideSelected(app: LauncherAppUiState) {
+        onAppOptionsDismissed()
+        viewModelScope.launch { appOrganizationRepository.setHidden(app.packageName, true) }
+    }
+
+    fun onRestoreAppSelected(app: LauncherAppUiState) {
+        viewModelScope.launch { appOrganizationRepository.setHidden(app.packageName, false) }
+    }
+
+    fun onSortOrderSelected(order: AppSortOrder) {
+        viewModelScope.launch { appOrganizationRepository.setSortOrder(order) }
     }
 
     fun onUninstallSelected(app: LauncherAppUiState) {
@@ -160,8 +198,6 @@ class LauncherViewModel(
         viewModelScope.launch { _effect.send(effect) }
     }
 }
-
-private const val RECENT_APPS_LIMIT = 5
 
 /** Emits the current time now and at the start of every minute. */
 private fun minuteTicker(): Flow<ZonedDateTime> = flow {
